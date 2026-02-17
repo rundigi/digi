@@ -1,0 +1,9 @@
+{
+  "extends": "@digi/typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler"
+  },
+  "include": ["src"]
+}
