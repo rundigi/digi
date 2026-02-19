@@ -1,0 +1,41 @@
+---
+title: Authentication
+description: Log in to Digi CLI and manage your credentials.
+---
+
+# CLI Authentication
+
+## Login
+
+```bash
+digi login
+```
+
+This opens your browser to authorize the CLI. After approving, your token is saved locally.
+
+## Token Storage
+
+Tokens are stored in `~/.config/digi/credentials.json`.
+
+## Using API Tokens
+
+You can also authenticate with a pre-generated API token:
+
+```bash
+export DIGI_TOKEN=your_token_here
+digi services list
+```
+
+Or per-command:
+
+```bash
+digi --token your_token_here services list
+```
+
+## Logout
+
+```bash
+digi logout
+```
+
+Removes stored credentials.

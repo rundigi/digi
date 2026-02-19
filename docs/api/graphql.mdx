@@ -1,0 +1,87 @@
+---
+title: GraphQL Reference
+description: GraphQL queries and mutations available in the Digi API.
+---
+
+# GraphQL
+
+## Queries
+
+```graphql
+# List your services
+query {
+  services {
+    id
+    name
+    status
+    domain
+    createdAt
+  }
+}
+
+# Get a specific service
+query($id: ID!) {
+  service(id: $id) {
+    id name status domain
+    deployments {
+      id status createdAt
+    }
+  }
+}
+
+# List deployments
+query($serviceId: ID) {
+  deployments(serviceId: $serviceId) {
+    id serviceId status commitSha createdAt finishedAt
+  }
+}
+```
+
+## Mutations
+
+```graphql
+# Create a service
+mutation {
+  createService(input: {
+    name: "my-api"
+    repoUrl: "https://github.com/you/repo"
+  }) {
+    id name status
+  }
+}
+
+# Deploy a service
+mutation($serviceId: ID!) {
+  deployService(serviceId: $serviceId) {
+    id status
+  }
+}
+
+# Create an API token
+mutation {
+  createApiToken(name: "my-token") {
+    token  # Only shown once!
+  }
+}
+```
+
+## Subscriptions
+
+```graphql
+# Stream container logs
+subscription($serviceId: ID!) {
+  containerLogs(serviceId: $serviceId) {
+    timestamp
+    message
+    stream  # "stdout" | "stderr"
+  }
+}
+
+# Watch deployment status
+subscription($deploymentId: ID!) {
+  deploymentStatus(deploymentId: $deploymentId) {
+    status
+    message
+  }
+}
+```

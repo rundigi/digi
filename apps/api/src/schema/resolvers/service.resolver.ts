@@ -44,6 +44,7 @@ export const serviceResolvers = {
       args: { userId?: string },
       ctx: Context
     ) => {
+      // console.log(ctx)
       if (!ctx.user) throw new Error("Unauthorized");
 
       const userId =
@@ -109,7 +110,7 @@ export const serviceResolvers = {
       }
 
       const subdomain = generateSubdomain(input.name);
-      const serviceId = generateId();
+      const serviceId = generateId("svc");
 
       const platformDomain = domainId
         ? await ctx.db.query.platformDomains.findFirst({
@@ -147,7 +148,7 @@ export const serviceResolvers = {
             : generateContainerSubdomain(subdomain, c.type);
 
         await ctx.db.insert(containers).values({
-          id: generateId(),
+          id: generateId("ctr"),
           serviceId,
           type: c.type as "app" | "postgres" | "redis" | "docker",
           name: c.name,
@@ -200,7 +201,7 @@ export const serviceResolvers = {
       }
 
       // Queue destroy job
-      const jobId = generateId();
+      const jobId = generateId("job");
       await ctx.db.insert(jobs).values({
         id: jobId,
         type: "destroy",
@@ -272,8 +273,8 @@ export const serviceResolvers = {
         throw new Error("Unauthorized");
       }
 
-      const deploymentId = generateId();
-      const jobId = generateId();
+      const deploymentId = generateId("dpl");
+      const jobId = generateId("job");
 
       // Create deployment record
       await ctx.db.insert(deployments).values({

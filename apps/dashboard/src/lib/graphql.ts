@@ -1,6 +1,4 @@
-import { env } from "~/env";
-
-const GRAPHQL_URL = `${env.NEXT_PUBLIC_API_URL}/graphql`;
+const GRAPHQL_URL = `/api/graphql`;
 
 export async function gql<T = unknown>(
   query: string,
@@ -8,9 +6,7 @@ export async function gql<T = unknown>(
 ): Promise<T> {
   const response = await fetch(GRAPHQL_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({ query, variables }),
   });
@@ -19,7 +15,10 @@ export async function gql<T = unknown>(
     throw new Error(`GraphQL request failed: ${response.statusText}`);
   }
 
-  const json = (await response.json()) as { data: T; errors?: { message: string }[] };
+  const json = (await response.json()) as {
+    data: T;
+    errors?: { message: string }[];
+  };
 
   if (json.errors) {
     throw new Error(json.errors.map((e) => e.message).join(", "));

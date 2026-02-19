@@ -1,0 +1,52 @@
+---
+title: SDK Reference
+description: Complete API reference for the Digi TypeScript SDK.
+---
+
+# SDK Reference
+
+## `DigiClient`
+
+```typescript
+new DigiClient(config: DigiClientConfig)
+```
+
+### Config
+
+```typescript
+interface DigiClientConfig {
+  apiUrl: string;   // e.g. "https://api.digi.run"
+  token: string;    // API token
+}
+```
+
+### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `.services` | `ServicesAPI` | Services API |
+| `.deployments` | `DeploymentsAPI` | Deployments API |
+| `.domains` | `DomainsAPI` | Domains API |
+| `.env` | `EnvAPI` | Environment variables API |
+
+### Methods
+
+#### `graphql<T>(query, variables?)`
+
+Execute a raw GraphQL query or mutation.
+
+```typescript
+const data = await digi.graphql<{ me: { email: string } }>(`
+  query { me { email } }
+`);
+```
+
+## `DigiSDKError`
+
+Thrown by all SDK methods on failure.
+
+```typescript
+class DigiSDKError extends Error {
+  code?: string; // GraphQL error code or HTTP status code
+}
+```

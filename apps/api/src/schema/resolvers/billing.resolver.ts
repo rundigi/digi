@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import { subscriptions, auditLogs } from "@digi/db/schema";
-import { generateId } from "@digi/shared/utils";
 import { STORAGE_INCREMENT_GB, STORAGE_INCREMENT_PRICE_PENCE } from "@digi/shared";
 import { type Context } from "../../context.js";
 import { env } from "../../env.js";

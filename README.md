@@ -1,33 +1,63 @@
-# Digi — Self-Hosted PaaS Platform
+![Digi Banner](./assets/digi_banner.png)
 
-A self-hosted Platform as a Service (PaaS) similar to Railway/Render, built as a Turborepo monorepo. Deploy apps from GitHub repos or Docker images onto Proxmox VMs with automatic subdomain routing, SSL, and billing.
+# Digi — Microservice Infrastructure for the Modern Web
+
+> Self-hosted PaaS: deploy apps from GitHub or Docker onto Proxmox VMs with automatic subdomain routing, SSL, and billing.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Built with Bun](https://img.shields.io/badge/runtime-Bun-black?logo=bun)](https://bun.sh)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue?logo=typescript)](https://typescriptlang.org)
+
+---
+
+## What is Digi?
+
+Digi is a fully **self-hosted Platform as a Service** that gives you Railway-like developer experience on your own infrastructure. Point it at a GitHub repository or Docker image, and Digi handles the rest: provisioning VMs on Proxmox, configuring Caddy for routing, issuing SSL certificates, managing DNS via Cloudflare, and billing your users with Stripe.
+
+Digi is built as a Turborepo monorepo with a Bun runtime, Next.js 15 frontends, and an ElysiaJS + GraphQL Yoga API — all strictly typed end-to-end.
+
+## Features
+
+- **Git-push deploys** — Connect a GitHub repo; every push triggers a new deployment via Railpack buildpacks
+- **Docker image support** — Deploy any public or private Docker image
+- **Automatic SSL** — Caddy handles HTTPS for every service subdomain
+- **Custom domains** — Attach your own domains with automatic DNS and SSL
+- **Real-time logs** — Stream container logs via WebSocket subscriptions
+- **CLI** — `digi login`, `digi deploy`, `digi logs` — full terminal workflow
+- **TypeScript SDK** — `@digi/sdk` for programmatic access
+- **Billing** — Stripe-powered plans, subscriptions, and usage
+- **Admin dashboard** — Manage servers, VMs, users, coupons, and audit logs
+- **Auth** — Email/password + GitHub OAuth via better-auth
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   Cloudflare DNS                     │
-│              *.domain.tld → Master Caddy IP          │
-└──────────────────────┬──────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────┐
-│              Master Caddy (public entry)              │
-│         Routes subdomains → VM-level Caddy           │
-└──────────────────────┬──────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────┐
-│              Proxmox VE Cluster                       │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │
-│  │  Master VM   │  │  Master VM   │  │  Master VM   │  │
-│  │  VM Caddy    │  │  VM Caddy    │  │  VM Caddy    │  │
-│  │  Docker      │  │  Docker      │  │  Docker      │  │
-│  │  ┌─────────┐ │  │  ┌─────────┐ │  │             │  │
-│  │  │ app     │ │  │  │ app     │ │  │  ...        │  │
-│  │  │ postgres│ │  │  │ redis   │ │  │             │  │
-│  │  │ redis   │ │  │  └─────────┘ │  │             │  │
-│  │  └─────────┘ │  └─────────────┘  └─────────────┘  │
-│  └─────────────┘                                     │
-└─────────────────────────────────────────────────────┘
+                        ┌─────────────────────────────────────┐
+                        │           Digi Platform             │
+                        │                                     │
+  Browser/CLI ──────▶  │  ┌──────────┐   ┌──────────────┐  │
+                        │  │ Next.js  │   │  ElysiaJS +  │  │
+                        │  │Dashboard │   │ GraphQL Yoga │  │
+                        │  └──────────┘   └──────┬───────┘  │
+                        │                        │           │
+                        │              ┌─────────▼─────────┐ │
+                        │              │    PostgreSQL      │ │
+                        │              │    Redis           │ │
+                        │              └─────────┬─────────┘ │
+                        └────────────────────────┼───────────┘
+                                                 │
+                        ┌────────────────────────▼───────────┐
+                        │         Proxmox VE Cluster         │
+                        │                                    │
+                        │  ┌──────┐  ┌──────┐  ┌──────┐    │
+                        │  │ VM 1 │  │ VM 2 │  │ VM 3 │    │
+                        │  │Caddy │  │Caddy │  │Caddy │    │
+                        │  │Docker│  │Docker│  │Docker│    │
+                        │  └──────┘  └──────┘  └──────┘    │
+                        └────────────────────────────────────┘
+                                        │
+                              Cloudflare DNS + SSL
 ```
 
 ## Monorepo Structure
@@ -35,22 +65,112 @@ A self-hosted Platform as a Service (PaaS) similar to Railway/Render, built as a
 ```
 digi/
 ├── apps/
-│   ├── web/            # Landing page (Next.js 15)
-│   ├── api/            # GraphQL API (ElysiaJS + GraphQL Yoga)
-│   ├── dashboard/      # User dashboard (Next.js 15)
-│   └── admin/          # Admin dashboard (Next.js 15)
+│   ├── landing/    # Marketing site (Next.js 15) — port 3000
+│   ├── dashboard/  # User dashboard (Next.js 15) — port 3001
+│   ├── admin/      # Admin dashboard (Next.js 15) — port 3002
+│   └── api/        # GraphQL API (ElysiaJS) — port 4000
 ├── packages/
-│   ├── cli/            # CLI binary (Bun standalone)
-│   ├── db/             # Drizzle ORM schema & client
-│   ├── auth/           # better-auth configuration
-│   ├── redis/          # Redis client, cache, pub/sub, job queue
-│   ├── shared/         # Shared types & utilities
-│   ├── ui/             # React component library
-│   ├── eslint-config/  # Shared ESLint config
-│   └── typescript-config/ # Shared TypeScript config
-├── docker-compose.yml  # Local dev (PostgreSQL, Redis, Mailpit)
-├── turbo.json
-└── package.json
+│   ├── cli/        # CLI binary (Bun standalone)
+│   ├── sdk/        # TypeScript SDK
+│   ├── db/         # Drizzle ORM schema & client
+│   ├── auth/       # better-auth configuration
+│   ├── redis/      # Redis client, cache, pub/sub, queue
+│   ├── shared/     # Shared types & utilities
+│   └── ui/         # React component library
+└── docs/           # Mintlify documentation
+```
+
+## Quick Start (Local Dev)
+
+### 1. Prerequisites
+
+- [Bun](https://bun.sh) ≥ 1.0
+- [Docker](https://docker.com)
+
+### 2. Install & Configure
+
+```bash
+git clone https://github.com/digi-run/digi
+cd digi
+bun install
+cp .env.example .env
+# Edit .env — at minimum set DATABASE_URL, REDIS_URL, BETTER_AUTH_SECRET
+```
+
+### 3. Start Infrastructure
+
+```bash
+docker compose up -d   # PostgreSQL + Redis + Mailpit
+```
+
+### 4. Set Up Database
+
+```bash
+cd packages/db && bun run db:push && cd ../..
+```
+
+### 5. Seed Admin User
+
+```bash
+bun run seed:admin
+# Prints: admin@digi.run / <generated-password>
+```
+
+### 6. Run Everything
+
+```bash
+bun dev
+```
+
+| App | URL | Description |
+|-----|-----|-------------|
+| Landing | http://localhost:3000 | Marketing site |
+| Dashboard | http://localhost:3001 | User dashboard |
+| Admin | http://localhost:3002 | Admin panel |
+| API | http://localhost:4000 | GraphQL API |
+| GraphQL Playground | http://localhost:4000/graphql | Interactive API explorer |
+| Mailpit | http://localhost:8025 | Email testing |
+
+## SDK
+
+```typescript
+import { DigiClient } from "@digi/sdk";
+
+const digi = new DigiClient({
+  apiUrl: "https://api.digi.run",
+  token: process.env.DIGI_API_TOKEN!,
+});
+
+// List services
+const services = await digi.services.list();
+
+// Deploy a service
+const deployment = await digi.services.deploy(services[0].id);
+
+// Manage environment variables
+await digi.env.set(services[0].id, [
+  { key: "NODE_ENV", value: "production" },
+]);
+```
+
+## CLI
+
+```bash
+# Install (build from source)
+cd packages/cli && bun run build
+
+# Login
+digi login
+
+# Create and deploy a service
+digi services create --name my-api --repo https://github.com/you/my-api
+digi deploy my-api --follow
+
+# Manage environment variables
+digi env set my-api DATABASE_URL=postgres://...
+
+# Stream logs
+digi logs my-api --follow
 ```
 
 ## Tech Stack
@@ -60,256 +180,44 @@ digi/
 | Runtime | Bun |
 | API | ElysiaJS + GraphQL Yoga |
 | Frontend | Next.js 15, React 19, Tailwind CSS v4 |
-| Auth | better-auth (shared across all apps) |
+| Auth | better-auth |
 | Database | PostgreSQL + Drizzle ORM |
 | Cache/Queue | Redis (ioredis) |
 | Virtualisation | Proxmox VE REST API |
 | Containers | Docker (inside VMs) |
-| Routing | Caddy (master + per-VM) |
+| Routing | Caddy |
 | DNS | Cloudflare API |
 | Billing | Stripe |
-| Builds | Railpack (buildpacks) + Docker images |
+| Builds | Railpack buildpacks |
 | CLI | Bun standalone binary |
 
-## Local Development Setup
+## Self-Hosting
 
-### Prerequisites
+For production deployment on your own infrastructure, see the [Self-Hosting Guide](docs/self-hosting/overview.mdx).
 
-- [Bun](https://bun.sh) v1.3.3+
-- [Docker](https://docker.com) (for PostgreSQL and Redis)
+You'll need:
+- Proxmox VE cluster
+- Domain on Cloudflare
+- PostgreSQL + Redis
+- Stripe account (for billing)
 
-### Quick Start
+## Documentation
 
-```bash
-# 1. Clone the repo
-git clone <repo-url> digi && cd digi
-
-# 2. Install dependencies
-bun install
-
-# 3. Set up environment
-cp .env.example .env
-# Edit .env with your configuration
-
-# 4. Start infrastructure (PostgreSQL + Redis)
-docker compose up -d
-
-# 5. Push database schema
-cd packages/db && bun run db:push && cd ../..
-
-# 6. Seed admin user
-cd apps/api && bun run seed:admin && cd ../..
-
-# 7. Start all services
-bun dev
-```
-
-### Dev Server Ports
-
-| Service | URL |
-|---------|-----|
-| Landing page | http://localhost:3000 |
-| User dashboard | http://localhost:3001 |
-| Admin dashboard | http://localhost:3002 |
-| GraphQL API | http://localhost:4000 |
-| GraphQL Playground | http://localhost:4000/graphql |
-| PostgreSQL | localhost:5432 |
-| Redis | localhost:6379 |
-| Mailpit UI | http://localhost:8025 |
-
-## Environment Variables
+To run docs locally:
 
 ```bash
-# Database
-DATABASE_URL=postgresql://digi:digi_dev@localhost:5432/digi
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# Auth (better-auth)
-BETTER_AUTH_SECRET=<random-secret>     # Required, min 32 chars
-BETTER_AUTH_URL=http://localhost:4000   # API base URL
-
-# GitHub OAuth (optional, for repo linking)
-GITHUB_CLIENT_ID=<github-oauth-app-id>
-GITHUB_CLIENT_SECRET=<github-oauth-app-secret>
-
-# Stripe (optional for local dev)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRO_PRICE_ID=price_...
-
-# Cloudflare (required for DNS management)
-CLOUDFLARE_API_TOKEN=<api-token>
-CLOUDFLARE_ZONE_ID=<zone-id>
-
-# Proxmox (required for VM provisioning)
-PROXMOX_API_URL=https://proxmox.example.com:8006/api2/json
-PROXMOX_TOKEN_ID=user@pam!tokenname
-PROXMOX_TOKEN_SECRET=<token-secret>
-PROXMOX_TEMPLATE_ID=100
-
-# Platform
-PLATFORM_DOMAIN=digi.example.com
-MASTER_CADDY_URL=http://caddy-master:2019
+cd docs
+npx mintlify dev
 ```
 
-## Admin Access
+## Contributing
 
-Admin accounts cannot be created via the UI. Use the seed script:
-
-```bash
-# Create admin with default email
-bun run seed:admin
-
-# Create admin with custom email
-bun run seed:admin admin@example.com "Admin Name"
-```
-
-The initial password is printed to stdout. **Save it immediately** — admin passwords rotate every 24 hours. After rotation, check API server logs for the new password.
-
-## CLI Usage
-
-The CLI binary is called `digi`. Build it with:
-
-```bash
-cd packages/cli && bun run build
-```
-
-### Authentication
-
-```bash
-digi login           # Authenticate with API token
-digi logout          # Clear saved credentials
-digi whoami          # Show current user
-```
-
-### Service Management
-
-```bash
-digi services list              # List all services
-digi services create            # Interactive service creation
-digi services info <id>         # Service details
-digi services delete <id>       # Delete service
-```
-
-### Deployment
-
-```bash
-digi deploy                     # Deploy all services from digi.toml
-digi deploy --only postgres     # Deploy specific components
-digi deploy --only app,redis    # Deploy multiple components
-```
-
-### Live Logs
-
-```bash
-digi logs <serviceId>                  # Stream all logs
-digi logs <serviceId> <containerName>  # Stream specific container
-```
-
-### Environment Variables
-
-```bash
-digi env list <serviceId>              # List env vars
-digi env set <serviceId> KEY=VALUE     # Set env vars
-```
-
-### Domains
-
-```bash
-digi domains list                      # List platform domains
-digi domains add <serviceId> <domain>  # Add custom domain (Pro)
-```
-
-### Platform Status
-
-```bash
-digi status                            # Check API health
-```
-
-### digi.toml Configuration
-
-```toml
-name = "my-app"
-
-[services.app]
-type = "github"
-repo = "https://github.com/user/repo"
-branch = "main"
-
-[services.app.env]
-NODE_ENV = "production"
-
-[services.postgres]
-type = "postgres"
-
-[services.redis]
-type = "redis"
-
-[services.worker]
-type = "docker"
-image = "myregistry/worker:latest"
-
-[services.worker.env]
-QUEUE_URL = "redis://redis:6379"
-```
-
-## Billing Tiers
-
-| Plan | Storage | Price | Custom Domains |
-|------|---------|-------|----------------|
-| Free | 16 GB/VM | Free | No |
-| Pro | 64 GB/VM | Paid | Yes |
-
-Pro users can upgrade storage in 32 GB increments at £5/month each.
-
-## Subdomain Format
-
-Services get auto-assigned subdomains:
-
-- Primary app: `app-name-random12.domain.tld`
-- PostgreSQL: `app-name-random12-postgres-a3f2.domain.tld`
-- Redis: `app-name-random12-redis-b91c.domain.tld`
-
-## Production Deployment
-
-### Prerequisites
-
-1. Proxmox VE cluster with API access
-2. Cloudflare account with API token and domain
-3. Stripe account for billing
-4. Ubuntu LTS VM template in Proxmox (Docker + Caddy pre-installed)
-5. Master Caddy instance with wildcard SSL
-
-### Steps
-
-1. Deploy PostgreSQL and Redis (managed or self-hosted)
-2. Set all environment variables
-3. Run `bun run db:push` to create tables
-4. Run `bun run seed:admin` to create admin account
-5. Build and deploy the API: `cd apps/api && bun run build && bun run start`
-6. Build and deploy dashboards: `cd apps/dashboard && bun run build && bun run start`
-7. Configure Master Caddy to route:
-   - `api.domain.tld` → API server
-   - `app.domain.tld` → User dashboard
-   - `admin.domain.tld` → Admin dashboard
-   - `*.domain.tld` → Dynamic routing to VMs
-8. Add platform domain via admin dashboard
-9. Add Proxmox nodes via admin dashboard
-
-## GraphQL API
-
-The API is available at `/graphql` with a playground in development.
-
-### Key Operations
-
-**Queries**: `me`, `services`, `service(id)`, `servers` (admin), `domains`, `vmStats(vmId)` (admin), `auditLogs` (admin), `users` (admin), `coupons` (admin)
-
-**Mutations**: `createService`, `deleteService`, `updateService`, `deployService`, `stopContainer`, `restartContainer`, `setEnvVars`, `addProxmoxNode`, `removeProxmoxNode`, `addDomain`, `removeDomain`, `setDomainDefault`, `createCheckoutSession`, `upgradeStorage`, `createCoupon`, `deactivateCoupon`, `deleteCoupon`, `applyCoupon`, `suspendUser`, `unsuspendUser`, `deleteUser`, `generateApiToken`, `revokeApiToken`
-
-**Subscriptions (WebSocket)**: `containerLogs(serviceId, containerId)`, `deploymentStatus(jobId)`
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/my-feature`
+3. Make your changes
+4. Run `bun typecheck && bun lint`
+5. Submit a pull request
 
 ## License
 
-Private — All rights reserved.
+MIT © Digi

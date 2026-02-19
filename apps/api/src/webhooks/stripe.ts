@@ -46,7 +46,7 @@ export function createStripeWebhookHandler(db: Database, cache: Cache) {
                 .where(eq(subscriptions.id, existing.id));
             } else {
               await db.insert(subscriptions).values({
-                id: generateId(),
+                id: generateId("sub"),
                 userId: session.metadata.userId,
                 planId: session.metadata.planId,
                 stripeCustomerId: session.customer as string,

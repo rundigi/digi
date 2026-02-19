@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@digi/shared": "workspace:*",
     "ioredis": "^5.4.0"
   },
   "devDependencies": {

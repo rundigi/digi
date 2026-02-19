@@ -7,6 +7,8 @@ const envSchema = z.object({
   BETTER_AUTH_URL: z.string().url(),
   GITHUB_CLIENT_ID: z.string().optional(),
   GITHUB_CLIENT_SECRET: z.string().optional(),
+  DISCORD_CLIENT_ID: z.string().optional(),
+  DISCORD_CLIENT_SECRET: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_PRO_PRICE_ID: z.string().optional(),
@@ -18,6 +20,7 @@ const envSchema = z.object({
   PROXMOX_TEMPLATE_ID: z.string().optional(),
   PLATFORM_DOMAIN: z.string().default("localhost"),
   MASTER_CADDY_URL: z.string().optional(),
+  ALLOWED_ORIGINS: z.string().optional(),
   PORT: z
     .string()
     .transform(Number)

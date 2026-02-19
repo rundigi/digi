@@ -1,0 +1,52 @@
+---
+title: Environment Variables
+description: Complete reference for all Digi environment variables.
+---
+
+# Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+## Required
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection URL |
+| `REDIS_URL` | Redis connection URL |
+| `BETTER_AUTH_SECRET` | Secret key for session encryption (min 32 chars) |
+| `BETTER_AUTH_URL` | Public URL of your API (e.g. https://api.digi.run) |
+
+## Infrastructure
+
+| Variable | Description |
+|----------|-------------|
+| `PROXMOX_API_URL` | Proxmox VE API URL |
+| `PROXMOX_TOKEN_ID` | Proxmox API token ID |
+| `PROXMOX_TOKEN_SECRET` | Proxmox API token secret |
+| `PROXMOX_TEMPLATE_ID` | VM template ID for new VMs |
+| `MASTER_CADDY_URL` | Caddy admin API URL |
+| `PLATFORM_DOMAIN` | Base domain (e.g. digi.run) |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token |
+| `CLOUDFLARE_ZONE_ID` | Cloudflare zone ID |
+
+## OAuth (Optional)
+
+| Variable | Description |
+|----------|-------------|
+| `GITHUB_CLIENT_ID` | GitHub OAuth app client ID |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth app client secret |
+
+## Billing (Optional)
+
+| Variable | Description |
+|----------|-------------|
+| `STRIPE_SECRET_KEY` | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
+| `STRIPE_PRO_PRICE_ID` | Stripe price ID for Pro plan |
+
+## App URLs
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_API_URL` | Public API URL for frontend apps |
+| `PORT` | API server port (default: 4000) |

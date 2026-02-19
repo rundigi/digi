@@ -42,6 +42,8 @@ export function createContextFactory(deps: {
       const sessionResult = await deps.auth.api.getSession({
         headers: request.headers,
       });
+
+     
       if (sessionResult) {
         user = sessionResult.user as User;
         session = sessionResult.session as Session;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { graphqlClient } from "~/lib/graphql";
 import { DataTable } from "~/components/data-table";
 import { Modal } from "~/components/modal";
@@ -42,7 +43,7 @@ export default function ServersPage() {
   async function handleAdd() {
     setSubmitting(true);
     try {
-      await graphqlClient(`
+      const res = await graphqlClient(`
         mutation AddNode($input: AddProxmoxNodeInput!) {
           addProxmoxNode(input: $input) { id }
         }
@@ -56,9 +57,16 @@ export default function ServersPage() {
           maxVms: parseInt(form.maxVms),
         },
       });
-      setShowAdd(false);
-      setForm({ hostname: "", port: "8006", tokenId: "", tokenSecret: "", region: "", maxVms: "10" });
-      await fetchServers();
+      if (res.errors?.[0]) {
+        toast.error(res.errors[0].message);
+      } else {
+        toast.success("Proxmox node added");
+        setShowAdd(false);
+        setForm({ hostname: "", port: "8006", tokenId: "", tokenSecret: "", region: "", maxVms: "10" });
+        await fetchServers();
+      }
+    } catch {
+      toast.error("Failed to add node");
     } finally {
       setSubmitting(false);
     }
@@ -66,8 +74,13 @@ export default function ServersPage() {
 
   async function handleRemove(id: string) {
     if (!confirm("Remove this Proxmox node?")) return;
-    await graphqlClient(`mutation($id: ID!) { removeProxmoxNode(id: $id) }`, { id });
-    await fetchServers();
+    try {
+      await graphqlClient(`mutation($id: ID!) { removeProxmoxNode(id: $id) }`, { id });
+      toast.success("Node removed");
+      await fetchServers();
+    } catch {
+      toast.error("Failed to remove node");
+    }
   }
 
   return (

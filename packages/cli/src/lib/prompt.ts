@@ -4,10 +4,15 @@ import { colors } from "./output.js";
  * Read a line of input from stdin.
  */
 async function readLine(): Promise<string> {
-  const reader = Bun.stdin.stream().getReader();
-  const { value } = await reader.read();
-  reader.releaseLock();
-  return value ? new TextDecoder().decode(value).trim() : "";
+  return new Promise<string>((resolve) => {
+    const onData = (data: Buffer) => {
+      process.stdin.removeListener("data", onData);
+      process.stdin.pause();
+      resolve(data.toString().trim());
+    };
+    process.stdin.resume();
+    process.stdin.on("data", onData);
+  });
 }
 
 /**

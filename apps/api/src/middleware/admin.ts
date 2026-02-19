@@ -1,5 +1,6 @@
 import { type Context } from "../context.js";
 import { requireAuth } from "./auth.js";
+import { AuthorizationError } from "../errors.js";
 
 export function requireAdmin(ctx: Context): asserts ctx is Context & {
   user: NonNullable<Context["user"]> & { role: "admin" };
@@ -7,6 +8,6 @@ export function requireAdmin(ctx: Context): asserts ctx is Context & {
 } {
   requireAuth(ctx);
   if (ctx.user.role !== "admin") {
-    throw new Error("Forbidden: admin access required");
+    throw new AuthorizationError("Admin access required");
   }
 }

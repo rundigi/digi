@@ -1,0 +1,59 @@
+---
+title: Services API
+description: Manage Digi services with the TypeScript SDK.
+---
+
+# Services API
+
+## List Services
+
+```typescript
+const services = await digi.services.list();
+// Service[]
+```
+
+## Get a Service
+
+```typescript
+const service = await digi.services.get("service-id");
+```
+
+## Create a Service
+
+```typescript
+const service = await digi.services.create({
+  name: "my-api",
+  repoUrl: "https://github.com/you/my-api",
+  envVars: [
+    { key: "NODE_ENV", value: "production" },
+  ],
+});
+```
+
+## Deploy a Service
+
+```typescript
+const deployment = await digi.services.deploy(service.id);
+console.log(`Deployment ${deployment.id} started`);
+```
+
+## Delete a Service
+
+```typescript
+await digi.services.delete(service.id);
+```
+
+## Service Type
+
+```typescript
+interface Service {
+  id: string;
+  name: string;
+  status: "running" | "stopped" | "deploying" | "error" | "pending";
+  repoUrl?: string;
+  dockerImage?: string;
+  domain?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```

@@ -9,20 +9,22 @@
   --color-border-subtle: rgba(255, 255, 255, 0.10);
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-html {
-  scroll-behavior: smooth;
-}
+  html {
+    scroll-behavior: smooth;
+  }
 
-body {
-  @apply bg-charcoal text-white;
-  font-family: 'DM Sans', sans-serif;
-  overflow-x: hidden;
+  body {
+    @apply bg-charcoal text-white;
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
 }
 
 @keyframes digi-fadeUp {

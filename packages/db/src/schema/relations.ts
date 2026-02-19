@@ -14,6 +14,14 @@ import { subscriptions } from "./subscriptions";
 import { apiTokens } from "./api-tokens";
 import { auditLogs } from "./audit-logs";
 import { plans } from "./plans";
+import { guildSettings } from "./guild-settings";
+import { ticketHelperRoles } from "./ticket-helper-roles";
+import { ticketPanels } from "./ticket-panels";
+import { ticketTypes } from "./ticket-types";
+import { tickets } from "./tickets";
+import { ticketMessages } from "./ticket-messages";
+import { ticketAttachments } from "./ticket-attachments";
+import { ticketTags } from "./ticket-tags";
 
 export const usersRelations = drizzleRelations(users, ({ many, one }) => ({
   sessions: many(sessions),
@@ -128,6 +136,93 @@ export const auditLogsRelations = drizzleRelations(auditLogs, ({ one }) => ({
   actor: one(users, { fields: [auditLogs.actorId], references: [users.id] }),
 }));
 
+export const guildSettingsRelations = drizzleRelations(
+  guildSettings,
+  ({ many }) => ({
+    helperRoles: many(ticketHelperRoles),
+    panels: many(ticketPanels),
+    ticketTypes: many(ticketTypes),
+    tickets: many(tickets),
+  })
+);
+
+export const ticketHelperRolesRelations = drizzleRelations(
+  ticketHelperRoles,
+  ({ one }) => ({
+    guildSettings: one(guildSettings, {
+      fields: [ticketHelperRoles.guildSettingsId],
+      references: [guildSettings.id],
+    }),
+  })
+);
+
+export const ticketPanelsRelations = drizzleRelations(
+  ticketPanels,
+  ({ one, many }) => ({
+    guildSettings: one(guildSettings, {
+      fields: [ticketPanels.guildSettingsId],
+      references: [guildSettings.id],
+    }),
+    tickets: many(tickets),
+  })
+);
+
+export const ticketTypesRelations = drizzleRelations(
+  ticketTypes,
+  ({ one, many }) => ({
+    guildSettings: one(guildSettings, {
+      fields: [ticketTypes.guildSettingsId],
+      references: [guildSettings.id],
+    }),
+    tags: many(ticketTags),
+  })
+);
+
+export const ticketsRelations = drizzleRelations(tickets, ({ one, many }) => ({
+  guildSettings: one(guildSettings, {
+    fields: [tickets.guildSettingsId],
+    references: [guildSettings.id],
+  }),
+  panel: one(ticketPanels, {
+    fields: [tickets.panelId],
+    references: [ticketPanels.id],
+  }),
+  messages: many(ticketMessages),
+  tags: many(ticketTags),
+}));
+
+export const ticketMessagesRelations = drizzleRelations(
+  ticketMessages,
+  ({ one, many }) => ({
+    ticket: one(tickets, {
+      fields: [ticketMessages.ticketId],
+      references: [tickets.id],
+    }),
+    attachments: many(ticketAttachments),
+  })
+);
+
+export const ticketAttachmentsRelations = drizzleRelations(
+  ticketAttachments,
+  ({ one }) => ({
+    message: one(ticketMessages, {
+      fields: [ticketAttachments.messageId],
+      references: [ticketMessages.id],
+    }),
+  })
+);
+
+export const ticketTagsRelations = drizzleRelations(ticketTags, ({ one }) => ({
+  ticket: one(tickets, {
+    fields: [ticketTags.ticketId],
+    references: [tickets.id],
+  }),
+  ticketType: one(ticketTypes, {
+    fields: [ticketTags.ticketTypeId],
+    references: [ticketTypes.id],
+  }),
+}));
+
 export const relations = {
   usersRelations,
   sessionsRelations,
@@ -144,4 +239,12 @@ export const relations = {
   subscriptionsRelations,
   apiTokensRelations,
   auditLogsRelations,
+  guildSettingsRelations,
+  ticketHelperRolesRelations,
+  ticketPanelsRelations,
+  ticketTypesRelations,
+  ticketsRelations,
+  ticketMessagesRelations,
+  ticketAttachmentsRelations,
+  ticketTagsRelations,
 };

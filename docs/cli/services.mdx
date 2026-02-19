@@ -1,0 +1,44 @@
+---
+title: Services
+description: Create, list, and manage your Digi services.
+---
+
+# Services
+
+## List Services
+
+```bash
+digi services list
+# or
+digi services ls
+```
+
+## Create a Service
+
+From a GitHub repository:
+
+```bash
+digi services create --name my-api --repo https://github.com/you/my-api
+```
+
+From a Docker image:
+
+```bash
+digi services create --name my-nginx --image nginx:latest
+```
+
+## Get Service Details
+
+```bash
+digi services get my-api
+```
+
+## Delete a Service
+
+```bash
+digi services delete my-api
+```
+
+<Warning>
+This permanently deletes the service and all its containers. This action cannot be undone.
+</Warning>

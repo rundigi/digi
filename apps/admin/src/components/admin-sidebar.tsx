@@ -20,13 +20,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-56 flex-col border-r border-white/5 bg-neutral-950">
-      <div className="flex h-14 items-center border-b border-white/5 px-5">
-        <Link href="/" className="text-lg font-bold tracking-tight text-white">
-          Digi <span className="text-xs font-normal text-neutral-500">admin</span>
-        </Link>
-      </div>
-
+    <aside className="fixed left-0 top-14 z-30 flex h-[calc(100vh-3.5rem)] w-56 flex-col border-r border-white/5 bg-neutral-950">
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {navItems.map((item) => {
           const isActive =
@@ -38,29 +32,18 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition ${
                 isActive
-                  ? "bg-digi-blue/10 text-digi-blue"
-                  : "text-neutral-400 hover:bg-white/5 hover:text-white"
+                  ? "bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20"
+                  : "text-neutral-500 hover:bg-white/5 hover:text-neutral-200"
               }`}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-400" : "text-neutral-600"}`} />
               {item.label}
             </Link>
           );
         })}
       </nav>
-
-      <div className="border-t border-white/5 px-5 py-3">
-        <button
-          onClick={() => {
-            window.location.href = "/login";
-          }}
-          className="text-xs text-neutral-500 transition hover:text-white"
-        >
-          Sign out
-        </button>
-      </div>
     </aside>
   );
 }

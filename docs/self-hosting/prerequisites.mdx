@@ -1,0 +1,34 @@
+---
+title: Prerequisites
+description: What you need before deploying Digi.
+---
+
+# Prerequisites
+
+## Infrastructure
+
+- **Proxmox VE** 8.x+ — VM orchestration
+- **PostgreSQL** 15+ — Primary database
+- **Redis** 7+ — Cache and job queue
+- **Domain** — Managed by Cloudflare DNS
+
+## Accounts
+
+- [Cloudflare](https://cloudflare.com) account with your domain
+- [Stripe](https://stripe.com) account (for billing)
+- [GitHub OAuth App](https://github.com/settings/apps) (optional, for GitHub login)
+
+## Server Requirements
+
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| CPU | 2 vCPU | 4 vCPU |
+| RAM | 2 GB | 8 GB |
+| Disk | 20 GB | 100 GB |
+| OS | Debian 12 / Ubuntu 24.04 | Debian 12 |
+
+## Software
+
+- [Bun](https://bun.sh) ≥ 1.0
+- [Docker](https://docker.com) ≥ 24
+- [Caddy](https://caddyserver.com) ≥ 2.8

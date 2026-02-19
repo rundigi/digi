@@ -1,0 +1,49 @@
+---
+title: Introduction
+description: Digi is a self-hosted PaaS for deploying microservices on Proxmox VMs with automatic subdomain routing, SSL, and billing.
+---
+
+# Welcome to Digi
+
+Digi is a **self-hosted Platform as a Service** (PaaS) similar to Railway or Render, but fully under your control. Deploy apps directly from GitHub repositories or Docker images onto Proxmox VMs with zero configuration.
+
+## What Digi Does
+
+<CardGroup cols={2}>
+  <Card title="Deploy from GitHub" icon="github">
+    Connect your repo and deploy with a single command. Digi uses Railpack buildpacks for automatic build detection.
+  </Card>
+  <Card title="Docker Image Support" icon="docker">
+    Deploy any Docker image from any registry. Full support for private registries.
+  </Card>
+  <Card title="Automatic SSL" icon="lock">
+    Caddy handles SSL termination automatically. Every service gets a subdomain with HTTPS.
+  </Card>
+  <Card title="Billing Built-in" icon="credit-card">
+    Stripe-powered billing with plans, subscriptions, and usage-based pricing.
+  </Card>
+</CardGroup>
+
+## Architecture Overview
+
+Digi runs on your own infrastructure:
+
+- **Proxmox VE** — VM orchestration
+- **Caddy** — Reverse proxy and SSL (master + per-VM)
+- **Cloudflare** — DNS management
+- **PostgreSQL** — Primary database
+- **Redis** — Caching, pub/sub, job queue
+
+## Quick Links
+
+<CardGroup cols={3}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Deploy your first service in 5 minutes
+  </Card>
+  <Card title="CLI Reference" icon="terminal" href="/cli/reference">
+    Full CLI command reference
+  </Card>
+  <Card title="SDK" icon="code" href="/sdk/overview">
+    TypeScript SDK for programmatic access
+  </Card>
+</CardGroup>

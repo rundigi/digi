@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Cal_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import Navbar from "~/components/navbar";
 
 export const metadata: Metadata = {
@@ -97,10 +97,10 @@ export const metadata: Metadata = {
   },
 };
 
-const calsans = Cal_Sans({
-  weight: "400",
+const calsans = localFont({
+  src: "../../public/fonts/CalSans-SemiBold.woff2",
   variable: "--font-calsans",
-  subsets: ["latin"],
+  weight: "600",
 });
 
 export default function RootLayout({
@@ -108,8 +108,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${calsans.variable}`}>
-      <Navbar/>
-      <body>{children}</body>
+      <body>
+        <Navbar/>
+        {children}
+      </body>
     </html>
   );
 }

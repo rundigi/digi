@@ -1,0 +1,76 @@
+---
+title: Command Reference
+description: Complete reference for all Digi CLI commands.
+---
+
+# CLI Reference
+
+## `digi login`
+
+Authenticate with your Digi account via browser.
+
+```
+digi login [--api-url <url>]
+```
+
+## `digi logout`
+
+Remove stored credentials.
+
+```
+digi logout
+```
+
+## `digi services`
+
+```
+digi services <command>
+
+Commands:
+  list                List all services
+  create              Create a new service
+  get <name|id>       Show service details
+  delete <name|id>    Delete a service
+```
+
+## `digi deploy`
+
+```
+digi deploy <service> [options]
+
+Options:
+  --follow    Stream deployment logs
+  --wait      Wait for deployment to complete
+```
+
+## `digi logs`
+
+```
+digi logs <service> [options]
+
+Options:
+  --follow    Stream live logs
+  --lines     Number of historical lines (default: 100)
+```
+
+## `digi env`
+
+```
+digi env <command> <service>
+
+Commands:
+  list                    List all env vars
+  set <KEY=VALUE...>      Set env vars
+  delete <KEY...>         Delete env vars
+```
+
+## `digi domains`
+
+```
+digi domains <command> <service>
+
+Commands:
+  list              List custom domains
+  add <hostname>    Add a custom domain
+  remove <id>       Remove a custom domain
+```

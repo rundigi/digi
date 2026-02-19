@@ -51,7 +51,7 @@ export const adminResolvers = {
         .where(eq(users.id, args.id));
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "user.suspend",
@@ -77,7 +77,7 @@ export const adminResolvers = {
         .where(eq(users.id, args.id));
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "user.unsuspend",
@@ -100,7 +100,7 @@ export const adminResolvers = {
       await ctx.db.delete(users).where(eq(users.id, args.id));
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "user.delete",

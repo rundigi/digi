@@ -15,6 +15,8 @@ import { schema } from "./schema/index.js";
 import { createStripeWebhookHandler } from "./webhooks/stripe.js";
 import { startJobWorker } from "./queue/worker.js";
 import { startPasswordRotation } from "./services/password.service.js";
+import { mountCliAuthRoutes } from "./routes/cli-auth.js";
+import { checkRateLimit, API_RATE_LIMIT } from "./middleware/rate-limit.js";
 
 // Initialize dependencies
 const db = createDb(env.DATABASE_URL);
@@ -34,6 +36,13 @@ const auth = createAuth({
           clientSecret: env.GITHUB_CLIENT_SECRET,
         }
       : undefined,
+  discord:
+    env.DISCORD_CLIENT_ID && env.DISCORD_CLIENT_SECRET
+      ? {
+          clientId: env.DISCORD_CLIENT_ID,
+          clientSecret: env.DISCORD_CLIENT_SECRET,
+        }
+      : undefined,
 });
 
 const createContext = createContextFactory({ db, auth, cache, pubsub, redis });
@@ -46,24 +55,62 @@ const yoga = createYoga({
   landingPage: true,
 });
 
+const AUTH_RATE_LIMIT = { windowMs: 60 * 1000, maxRequests: 20 };
+
 // Create Elysia app
-const app = new Elysia()
+const baseApp = new Elysia()
   .use(
     cors({
-      origin: [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-      ],
+      origin: (env.ALLOWED_ORIGINS ?? "")
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean)
+        .concat([
+          "http://app.localhost",
+          "http://admin.localhost",
+          "http://localhost:3000",
+          "http://localhost:3001",
+          "http://localhost:3002",
+        ]),
       credentials: true,
-    })
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
   )
-  // Mount better-auth handler
-  .all("/api/auth/*", (ctx) => {
+  // Mount better-auth handler with rate limit
+  .all("/api/auth/*", async (ctx) => {
+    const ip =
+      ctx.request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      "unknown";
+    const rl = await checkRateLimit(redis, `auth:${ip}`, AUTH_RATE_LIMIT);
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({ error: "Too Many Requests" }), {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      });
+    }
     return auth.handler(ctx.request);
   })
-  // Mount GraphQL
-  .all("/graphql", (ctx) => {
+  // Mount GraphQL with rate limit
+  .all("/graphql", async (ctx) => {
+    const ip =
+      ctx.request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      "unknown";
+    const rl = await checkRateLimit(redis, `gql:${ip}`, API_RATE_LIMIT);
+    if (!rl.allowed) {
+      return new Response(
+        JSON.stringify({ errors: [{ message: "Too Many Requests", extensions: { code: "RATE_LIMITED" } }] }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+          },
+        },
+      );
+    }
     return yoga.handle(ctx.request);
   })
   // Stripe webhook
@@ -71,8 +118,13 @@ const app = new Elysia()
     return createStripeWebhookHandler(db, cache)(ctx.request);
   })
   // Health check
-  .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
-  .listen(env.PORT);
+  .get("/health", () => ({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+  }));
+
+// Mount CLI auth routes
+const app = mountCliAuthRoutes(baseApp as unknown as Elysia, { auth, db, redis }).listen(env.PORT);
 
 // Start background processes
 startJobWorker(db, redis, pubsub, cache);

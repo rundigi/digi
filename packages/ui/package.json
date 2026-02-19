@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
+    "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -18,5 +19,8 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "sonner": "^2.0.7"
   }
 }

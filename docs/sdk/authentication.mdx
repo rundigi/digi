@@ -1,0 +1,36 @@
+---
+title: Authentication
+description: Authenticate with the Digi API using API tokens.
+---
+
+# SDK Authentication
+
+The SDK uses API tokens for authentication. Generate tokens from the Dashboard or CLI.
+
+## Generating Tokens
+
+**Dashboard**: Settings → API Tokens → Generate Token
+
+**CLI**:
+```bash
+digi token create --name "my-script"
+```
+
+## Using Your Token
+
+```typescript
+import { DigiClient } from "@digi/sdk";
+
+const digi = new DigiClient({
+  apiUrl: "https://api.digi.run",
+  token: process.env.DIGI_API_TOKEN!,
+});
+```
+
+<Warning>
+Never hardcode tokens in source code. Use environment variables.
+</Warning>
+
+## Token Scopes
+
+Currently all API tokens have full access to resources owned by the user.

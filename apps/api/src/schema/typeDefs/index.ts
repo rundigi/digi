@@ -12,6 +12,7 @@ const baseTypeDefs = /* GraphQL */ `
     auditLogs(limit: Int, offset: Int): [AuditLog!]!
     users(limit: Int, offset: Int): [User!]!
     coupons: [Coupon!]!
+    apiTokens: [ApiToken!]!
   }
 
   type Mutation {
@@ -228,6 +229,13 @@ const baseTypeDefs = /* GraphQL */ `
   type CheckoutSessionResult {
     url: String!
     sessionId: String!
+  }
+
+  type ApiToken {
+    id: String!
+    name: String!
+    lastUsedAt: DateTime
+    createdAt: DateTime!
   }
 
   type ApiTokenResult {

@@ -1,0 +1,66 @@
+{
+  "name": "Digi",
+  "logo": {
+    "light": "/logo.png",
+    "dark": "/logo.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#3A7DFF",
+    "light": "#6BA3FF",
+    "dark": "#2E6BE6"
+  },
+  "topbarLinks": [
+    { "name": "Dashboard", "url": "https://app.digi.run" }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "https://app.digi.run/register"
+  },
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "quickstart"]
+    },
+    {
+      "group": "CLI",
+      "pages": [
+        "cli/overview",
+        "cli/authentication",
+        "cli/services",
+        "cli/deploy",
+        "cli/reference"
+      ]
+    },
+    {
+      "group": "SDK",
+      "pages": [
+        "sdk/overview",
+        "sdk/authentication",
+        "sdk/services",
+        "sdk/deployments",
+        "sdk/reference"
+      ]
+    },
+    {
+      "group": "API",
+      "pages": [
+        "api/overview",
+        "api/authentication",
+        "api/graphql"
+      ]
+    },
+    {
+      "group": "Self-Hosting",
+      "pages": [
+        "self-hosting/overview",
+        "self-hosting/prerequisites",
+        "self-hosting/infrastructure",
+        "self-hosting/environment"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/digi-run/digi"
+  }
+}

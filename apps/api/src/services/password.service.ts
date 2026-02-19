@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { accounts, users, auditLogs } from "@digi/db/schema";
 import { type Database } from "@digi/db";
 import { generateId } from "@digi/shared/utils";
+import { hashPassword } from "better-auth/crypto";
 
 function generateSecurePassword(): string {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
@@ -17,7 +18,7 @@ export async function rotateAdminPassword(db: Database): Promise<void> {
 
   for (const admin of adminUsers) {
     const newPassword = generateSecurePassword();
-    const hashedPassword = await Bun.password.hash(newPassword, "bcrypt");
+    const hashedPassword = await hashPassword(newPassword);
 
     // Update the admin's credential account password
     await db
@@ -32,7 +33,7 @@ export async function rotateAdminPassword(db: Database): Promise<void> {
 
     // Audit log
     await db.insert(auditLogs).values({
-      id: generateId(),
+      id: generateId("log"),
       actorType: "system",
       action: "admin.password_rotate",
       resourceType: "user",

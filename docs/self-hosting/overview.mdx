@@ -1,0 +1,48 @@
+---
+title: Self-Hosting Overview
+description: Host Digi on your own infrastructure with Proxmox, Caddy, and Cloudflare.
+---
+
+# Self-Hosting Digi
+
+Digi is designed to be self-hosted on your own infrastructure. You have full control over your data and compute.
+
+## Architecture
+
+```
+Internet → Cloudflare DNS → Master Caddy → Digi API
+                                        → Per-VM Caddy → Docker Containers
+```
+
+## Components
+
+| Component | Role |
+|-----------|------|
+| Proxmox VE | VM orchestration |
+| Caddy (master) | Global reverse proxy, SSL termination |
+| Caddy (per-VM) | Per-VM service routing |
+| Cloudflare | DNS management, DDoS protection |
+| PostgreSQL | Primary database |
+| Redis | Cache, pub/sub, job queue |
+
+## Requirements
+
+- A Proxmox VE cluster (or single node)
+- A domain with Cloudflare DNS
+- A PostgreSQL instance
+- A Redis instance
+- A server to run the Digi API and dashboards
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Prerequisites" href="/self-hosting/prerequisites">
+    What you need before installing
+  </Card>
+  <Card title="Infrastructure" href="/self-hosting/infrastructure">
+    Set up Proxmox, Caddy, and Cloudflare
+  </Card>
+  <Card title="Environment" href="/self-hosting/environment">
+    All environment variables explained
+  </Card>
+</CardGroup>

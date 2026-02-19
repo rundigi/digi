@@ -1,0 +1,35 @@
+---
+title: Deploy
+description: Deploy and redeploy your services.
+---
+
+# Deploying Services
+
+## Deploy a Service
+
+```bash
+digi deploy my-api
+```
+
+This triggers a new deployment of the service, pulling the latest code from the configured repository.
+
+## Watch Deployment Logs
+
+```bash
+digi deploy my-api --follow
+```
+
+## Rollback
+
+```bash
+digi rollback my-api --to <deployment-id>
+```
+
+## Environment Variables
+
+Set environment variables before deploying:
+
+```bash
+digi env set my-api DATABASE_URL=postgres://...
+digi deploy my-api
+```

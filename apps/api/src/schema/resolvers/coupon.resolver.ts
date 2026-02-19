@@ -33,7 +33,7 @@ export const couponResolvers = {
     ) => {
       requireAdmin(ctx);
 
-      const id = generateId();
+      const id = generateId("cpn");
 
       await ctx.db.insert(coupons).values({
         id,
@@ -50,7 +50,7 @@ export const couponResolvers = {
       // TODO: Create corresponding Stripe coupon
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "coupon.create",
@@ -77,7 +77,7 @@ export const couponResolvers = {
         .where(eq(coupons.id, args.id));
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "coupon.deactivate",
@@ -100,7 +100,7 @@ export const couponResolvers = {
       await ctx.db.delete(coupons).where(eq(coupons.id, args.id));
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "coupon.delete",

@@ -57,9 +57,23 @@ export default function NewServicePage() {
     setError(null);
 
     try {
-      const selectedComponents = Object.entries(form.components)
+      const dockerImageMap: Record<string, string> = {
+        postgres: "postgres:16",
+        redis: "redis:7",
+      };
+
+      const containers = Object.entries(form.components)
         .filter(([, v]) => v)
-        .map(([k]) => k);
+        .map(([k]) => ({
+          type: k === "customDocker" ? "docker" : k,
+          name: `${form.name}-${k}`,
+          ...(dockerImageMap[k] ? { dockerImage: dockerImageMap[k] } : {}),
+        }));
+
+      const envVarsObj: Record<string, string> = {};
+      for (const v of form.envVars) {
+        if (v.key.trim()) envVarsObj[v.key] = v.value;
+      }
 
       await gql(`
         mutation CreateService($input: CreateServiceInput!) {
@@ -71,11 +85,11 @@ export default function NewServicePage() {
         input: {
           name: form.name,
           sourceType: form.sourceType,
-          repoUrl: form.sourceType === "github" ? form.repoUrl : undefined,
+          gitUrl: form.sourceType === "github" ? form.repoUrl : undefined,
           branch: form.sourceType === "github" ? form.branch : undefined,
           dockerImage: form.sourceType === "docker" ? form.dockerImage : undefined,
-          components: selectedComponents,
-          envVars: form.envVars.filter((v) => v.key.trim() !== ""),
+          containers,
+          envVars: Object.keys(envVarsObj).length > 0 ? envVarsObj : undefined,
         },
       });
 

@@ -14,6 +14,19 @@ const config = {
   turbopack: {
     root: resolve(__dirname, "../.."),
   },
+  async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://api.localhost";
+    return [
+      {
+        source: "/api/auth/:path*",
+        destination: `${apiUrl}/api/auth/:path*`,
+      },
+      {
+        source: "/api/graphql",
+        destination: `${apiUrl}/graphql`,
+      },
+    ];
+  },
 };
 
 export default config;

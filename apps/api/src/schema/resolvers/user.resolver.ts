@@ -1,7 +1,8 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { services, subscriptions, apiTokens } from "@digi/db/schema";
 import { generateId } from "@digi/shared/utils";
 import { type Context } from "../../context.js";
+import { AuthenticationError } from "../../errors.js";
 
 async function sha256Hex(value: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -16,6 +17,13 @@ export const userResolvers = {
     me: async (_: unknown, __: unknown, ctx: Context) => {
       if (!ctx.user) return null;
       return ctx.user;
+    },
+    apiTokens: async (_: unknown, __: unknown, ctx: Context) => {
+      if (!ctx.user) throw new AuthenticationError();
+      return ctx.db.query.apiTokens.findMany({
+        where: eq(apiTokens.userId, ctx.user.id),
+        orderBy: [desc(apiTokens.createdAt)],
+      });
     },
   },
   Mutation: {
@@ -36,7 +44,7 @@ export const userResolvers = {
       // SHA-256 for deterministic DB lookup — safe because the token has 256 bits
       // of entropy, making brute-force preimage attacks computationally infeasible.
       const tokenHash = await sha256Hex(token);
-      const id = generateId();
+      const id = generateId("atk");
 
       await ctx.db.insert(apiTokens).values({
         id,

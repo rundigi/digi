@@ -24,7 +24,7 @@ export async function provisionVm(
 
   // Generate a Proxmox VM ID (use timestamp-based)
   const proxmoxVmId = 100 + Math.floor(Math.random() * 9900);
-  const vmId = generateId();
+  const vmId = generateId("vm");
 
   // Clone template
   const templateId = parseInt(process.env.PROXMOX_TEMPLATE_ID ?? "100");

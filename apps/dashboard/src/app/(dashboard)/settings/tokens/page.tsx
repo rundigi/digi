@@ -46,7 +46,7 @@ export default function TokensPage() {
 
   async function handleRevoke(id: string) {
     if (!confirm("Revoke this API token?")) return;
-    await gql(`mutation($id: ID!) { revokeApiToken(id: $id) }`, { id });
+    await gql(`mutation($id: String!) { revokeApiToken(id: $id) }`, { id });
     await fetchTokens();
   }
 

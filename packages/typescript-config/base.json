@@ -5,6 +5,8 @@
     "target": "es2022",
     "allowJs": true,
     "resolveJsonModule": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,

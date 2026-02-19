@@ -1,0 +1,38 @@
+---
+title: API Overview
+description: The Digi GraphQL API provides programmatic access to all platform resources.
+---
+
+# GraphQL API
+
+Digi exposes a GraphQL API at `https://api.digi.run/graphql`.
+
+## Endpoint
+
+```
+POST https://api.digi.run/graphql
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+## Playground
+
+Visit `https://api.digi.run/graphql` in your browser for an interactive GraphQL playground.
+
+## Schema
+
+The API provides queries and mutations for:
+
+- **Services** — Create, deploy, and manage services
+- **Deployments** — Track deployment history and status
+- **Containers** — View running container state
+- **Domains** — Manage custom domains
+- **Billing** — Plans, subscriptions, invoices
+- **Users** — Account management and API tokens
+
+## Real-time
+
+WebSocket subscriptions are available for:
+
+- `containerLogs` — Stream live container logs
+- `deploymentStatus` — Watch deployment progress

@@ -1,0 +1,56 @@
+---
+title: Infrastructure Setup
+description: Configure Proxmox, Caddy, and Cloudflare for Digi.
+---
+
+# Infrastructure Setup
+
+## Proxmox VE
+
+1. Install Proxmox VE 8 on your server
+2. Create an API token with VM management permissions:
+   - **Token ID**: `digi@pve!digi`
+   - **Privileges**: VM.Allocate, VM.Clone, VM.Config.*, VM.Monitor, VM.PowerMgmt
+
+3. Set in your `.env`:
+```env
+PROXMOX_API_URL=https://your-proxmox:8006
+PROXMOX_TOKEN_ID=digi@pve!digi
+PROXMOX_TOKEN_SECRET=your-token-secret
+PROXMOX_TEMPLATE_ID=100
+```
+
+## Cloudflare
+
+1. Add your domain to Cloudflare
+2. Create an API token with **Zone:DNS:Edit** permission for your zone
+3. Set in your `.env`:
+```env
+CLOUDFLARE_API_TOKEN=your-token
+CLOUDFLARE_ZONE_ID=your-zone-id
+PLATFORM_DOMAIN=digi.run
+```
+
+## Caddy (Master)
+
+Install Caddy on your main server:
+
+```bash
+apt install caddy
+```
+
+Digi manages Caddy configuration via its Admin API. Set:
+```env
+MASTER_CADDY_URL=http://localhost:2019
+```
+
+## Stripe
+
+1. Create a Stripe account
+2. Set up your webhook endpoint at `https://api.yourdomain.com/webhooks/stripe`
+3. Set in your `.env`:
+```env
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRO_PRICE_ID=price_...
+```

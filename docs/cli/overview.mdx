@@ -1,0 +1,45 @@
+---
+title: CLI Overview
+description: The Digi CLI provides a powerful interface for managing your services from the terminal.
+---
+
+# Digi CLI
+
+The `digi` command-line interface lets you manage all aspects of your Digi platform from the terminal.
+
+## Installation
+
+### Build from source
+
+```bash
+cd packages/cli
+bun run build
+# Outputs to packages/cli/dist/digi
+```
+
+### Add to PATH
+
+```bash
+export PATH="$PATH:/path/to/digi/packages/cli/dist"
+```
+
+## Global Options
+
+| Flag | Description |
+|------|-------------|
+| `--api-url` | Override the API URL (default: https://api.digi.run) |
+| `--token` | Use a specific API token |
+| `--json` | Output as JSON |
+| `--help` | Show help |
+
+## Commands Overview
+
+| Command | Description |
+|---------|-------------|
+| `digi login` | Authenticate with your Digi account |
+| `digi logout` | Remove stored credentials |
+| `digi services` | Manage services |
+| `digi deploy` | Deploy a service |
+| `digi logs` | Stream service logs |
+| `digi env` | Manage environment variables |
+| `digi domains` | Manage custom domains |

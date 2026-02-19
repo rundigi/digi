@@ -1,0 +1,32 @@
+---
+title: API Authentication
+description: Authenticate with the Digi GraphQL API.
+---
+
+# API Authentication
+
+## Bearer Token
+
+All API requests require an `Authorization` header:
+
+```
+Authorization: Bearer <your-api-token>
+```
+
+## Generating Tokens
+
+**Dashboard**: Settings → API Tokens → Generate
+
+**CLI**:
+```bash
+digi token create --name "my-integration"
+```
+
+## Example Request
+
+```bash
+curl -X POST https://api.digi.run/graphql \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $DIGI_TOKEN" \
+  -d '{"query": "{ me { id email } }"}'
+```

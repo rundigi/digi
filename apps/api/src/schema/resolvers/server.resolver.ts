@@ -76,7 +76,7 @@ export const serverResolvers = {
     ) => {
       requireAdmin(ctx);
 
-      const id = generateId();
+      const id = generateId("srv");
       await ctx.db.insert(servers).values({
         id,
         name: args.input.name,
@@ -89,7 +89,7 @@ export const serverResolvers = {
       });
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "server.add",
@@ -113,7 +113,7 @@ export const serverResolvers = {
       await ctx.db.delete(servers).where(eq(servers.id, args.id));
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "server.remove",

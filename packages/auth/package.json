@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@digi/db": "workspace:*",
+    "@digi/shared": "workspace:*",
     "better-auth": "^1.2.0"
   },
   "devDependencies": {

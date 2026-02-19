@@ -1,0 +1,44 @@
+---
+title: Deployments API
+description: Manage and track service deployments.
+---
+
+# Deployments API
+
+## List Deployments
+
+```typescript
+// All deployments
+const deployments = await digi.deployments.list();
+
+// For a specific service
+const deployments = await digi.deployments.list("service-id");
+```
+
+## Get a Deployment
+
+```typescript
+const deployment = await digi.deployments.get("deployment-id");
+console.log(deployment.status); // "succeeded"
+```
+
+## Cancel a Deployment
+
+```typescript
+await digi.deployments.cancel("deployment-id");
+```
+
+## Deployment Type
+
+```typescript
+interface Deployment {
+  id: string;
+  serviceId: string;
+  status: "pending" | "running" | "succeeded" | "failed" | "cancelled";
+  commitSha?: string;
+  commitMessage?: string;
+  createdAt: string;
+  finishedAt?: string;
+  logs?: string;
+}
+```

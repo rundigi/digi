@@ -1,5 +1,5 @@
 export { generateSubdomain, generateContainerSubdomain, slugify } from "./subdomain.js";
-export { generateId } from "./id.js";
+export { generateId, type PikaPrefix } from "./id.js";
 export {
   PLAN_LIMITS,
   STORAGE_INCREMENT_GB,

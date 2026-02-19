@@ -1,7 +1,3 @@
-import { env } from "~/env";
-
-const API_URL = env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-
 interface GraphQLResponse<T = unknown> {
   data?: T;
   errors?: Array<{ message: string; path?: string[] }>;
@@ -20,9 +16,10 @@ export async function graphqlClient<T = unknown>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}/graphql`, {
+  const response = await fetch("/api/graphql", {
     method: "POST",
     headers,
+    credentials: "include",
     body: JSON.stringify({ query, variables }),
   });
 

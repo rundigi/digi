@@ -1,0 +1,20 @@
+{
+  "name": "@digi/sdk",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --outDir dist"
+  },
+  "devDependencies": {
+    "@digi/typescript-config": "workspace:*",
+    "typescript": "^5.8.2"
+  }
+}

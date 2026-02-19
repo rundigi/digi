@@ -3,60 +3,49 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 import { authClient } from "~/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     try {
-      const result = await authClient.signIn.email({
-        email,
-        password,
-      });
+      const result = await authClient.signIn.email({ email, password });
 
       if (result.error) {
-        setError(result.error.message ?? "Sign in failed. Please check your credentials.");
+        toast.error(result.error.message ?? "Sign in failed. Please check your credentials.");
       } else {
         router.push("/services");
       }
     } catch {
-      setError("An unexpected error occurred. Please try again.");
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white">Sign in to Digi</h1>
-          <p className="mt-2 text-neutral-400">
-            Manage your microservices and infrastructure.
-          </p>
-        </div>
+    <>
+      <div className="mb-8 text-center">
+        <h1 className="text-xl font-semibold tracking-tight text-white">
+          Sign in to Digi
+        </h1>
+        <p className="mt-1.5 text-sm text-neutral-500">
+          Manage your microservices and infrastructure.
+        </p>
+      </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-xl border border-neutral-800 bg-neutral-900 p-8"
-        >
-          {error && (
-            <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-              {error}
-            </div>
-          )}
-
-          <div className="mb-4">
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-neutral-300">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/40 backdrop-blur-xl">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-neutral-400">
               Email
             </label>
             <input
@@ -66,12 +55,12 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2.5 text-white placeholder-neutral-500 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder-neutral-600 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.07] focus:ring-1 focus:ring-blue-500/30"
             />
           </div>
 
-          <div className="mb-6">
-            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-neutral-300">
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-neutral-400">
               Password
             </label>
             <input
@@ -81,19 +70,29 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2.5 text-white placeholder-neutral-500 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder-neutral-600 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.07] focus:ring-1 focus:ring-blue-500/30"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-500 px-4 py-2.5 font-medium text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-2 w-full rounded-xl bg-blue-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Signing in…
+              </span>
+            ) : (
+              "Sign in"
+            )}
           </button>
 
-          <p className="mt-4 text-center text-sm text-neutral-400">
+          <p className="text-center text-xs text-neutral-500">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="text-blue-400 hover:text-blue-300">
               Create one
@@ -101,6 +100,13 @@ export default function LoginPage() {
           </p>
         </form>
       </div>
-    </div>
+
+      <p className="mt-6 text-center text-xs text-neutral-600">
+        Need help?{" "}
+        <a href="https://docs.digi.bnhm.dev" className="hover:text-neutral-400">
+          docs.digi.bnhm.dev
+        </a>
+      </p>
+    </>
   );
 }

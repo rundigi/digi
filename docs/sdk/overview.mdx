@@ -1,0 +1,59 @@
+---
+title: SDK Overview
+description: The Digi TypeScript SDK provides a type-safe client for the Digi API.
+---
+
+# TypeScript SDK
+
+The `@digi/sdk` package provides a first-class TypeScript client for the Digi GraphQL API.
+
+## Installation
+
+```bash
+bun add @digi/sdk
+# or
+npm install @digi/sdk
+```
+
+## Quick Start
+
+```typescript
+import { DigiClient } from "@digi/sdk";
+
+const digi = new DigiClient({
+  apiUrl: "https://api.digi.run",
+  token: process.env.DIGI_API_TOKEN!,
+});
+
+// List all services
+const services = await digi.services.list();
+console.log(services);
+
+// Deploy a service
+await digi.services.deploy(services[0].id);
+```
+
+## API Surface
+
+| Namespace | Description |
+|-----------|-------------|
+| `digi.services` | Create, list, get, delete services |
+| `digi.deployments` | List and manage deployments |
+| `digi.domains` | Manage custom domains |
+| `digi.env` | Read and write environment variables |
+
+## Error Handling
+
+All methods throw `DigiSDKError` on failure:
+
+```typescript
+import { DigiClient, DigiSDKError } from "@digi/sdk";
+
+try {
+  await digi.services.deploy("nonexistent-id");
+} catch (err) {
+  if (err instanceof DigiSDKError) {
+    console.error(err.message, err.code);
+  }
+}
+```

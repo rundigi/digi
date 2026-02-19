@@ -1,14 +1,24 @@
 import { createDb } from "@digi/db";
-import { users, accounts } from "@digi/db/schema";
-import { generateId } from "@digi/shared/utils";
+import { users } from "@digi/db/schema";
+import { createAuth } from "@digi/auth/server";
+import { eq } from "drizzle-orm";
 
 const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-  console.error("DATABASE_URL environment variable is required");
+const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET;
+const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL;
+
+if (!DATABASE_URL || !BETTER_AUTH_SECRET || !BETTER_AUTH_URL) {
+  console.error("DATABASE_URL, BETTER_AUTH_SECRET, and BETTER_AUTH_URL are required");
   process.exit(1);
 }
 
 const db = createDb(DATABASE_URL);
+
+const auth = createAuth({
+  db,
+  baseURL: BETTER_AUTH_URL,
+  secret: BETTER_AUTH_SECRET,
+});
 
 async function seedAdmin() {
   const email = process.argv[2] ?? "admin@digi.dev";
@@ -20,26 +30,25 @@ async function seedAdmin() {
   crypto.getRandomValues(array);
   const password = Array.from(array, (byte) => chars[byte % chars.length]).join("");
 
-  const hashedPassword = await Bun.password.hash(password, "bcrypt");
-  const userId = generateId();
-
-  // Create admin user
-  await db.insert(users).values({
-    id: userId,
-    name,
-    email,
-    emailVerified: true,
-    role: "admin",
+  // Use better-auth's API to create the user (handles password hashing correctly)
+  const result = await auth.api.signUpEmail({
+    body: {
+      email,
+      password,
+      name,
+    },
   });
 
-  // Create credential account
-  await db.insert(accounts).values({
-    id: generateId(),
-    userId,
-    accountId: userId,
-    providerId: "credential",
-    password: hashedPassword,
-  });
+  if (!result?.user?.id) {
+    console.error("Failed to create admin user");
+    process.exit(1);
+  }
+
+  // Promote to admin role
+  await db
+    .update(users)
+    .set({ role: "admin", emailVerified: true })
+    .where(eq(users.id, result.user.id));
 
   console.log("========================================");
   console.log("Admin user created successfully!");

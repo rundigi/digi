@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "~/components/sidebar";
 import { authClient } from "~/lib/auth-client";
+import { Navbar } from "@digi/ui";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | undefined>();
+  const [user, setUser] = useState<{ email?: string; name?: string } | undefined>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           router.push("/login");
           return;
         }
-        setUserEmail(session.data.user.email);
+        setUser({ email: session.data.user.email, name: session.data.user.name });
       })
       .catch(() => {
         router.push("/login");
@@ -27,6 +28,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setLoading(false);
       });
   }, [router]);
+
+  async function handleSignOut() {
+    try {
+      await authClient.signOut();
+    } catch {
+      // Ignore sign-out errors — redirect regardless
+    }
+    router.push("/login");
+  }
 
   if (loading) {
     return (
@@ -37,9 +47,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen bg-neutral-950">
-      <Sidebar userEmail={userEmail} />
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
+    <div className="min-h-screen bg-neutral-950">
+      <Navbar user={user} onSignOut={handleSignOut} />
+      <Sidebar />
+      <main className="pl-56 pt-14">
+        <div className="p-10">{children}</div>
+      </main>
     </div>
   );
 }

@@ -38,7 +38,7 @@ export const domainResolvers = {
     ) => {
       requireAdmin(ctx);
 
-      const id = generateId();
+      const id = generateId("dom");
 
       // If setting as default, unset current default
       if (args.input.isDefault) {
@@ -61,7 +61,7 @@ export const domainResolvers = {
       });
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "domain.add",
@@ -89,7 +89,7 @@ export const domainResolvers = {
         .where(eq(platformDomains.id, args.id));
 
       await ctx.db.insert(auditLogs).values({
-        id: generateId(),
+        id: generateId("log"),
         actorId: ctx.user!.id,
         actorType: "admin",
         action: "domain.remove",

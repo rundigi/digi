@@ -1,5 +1,6 @@
 import { type RedisClient } from "./client.js";
 import { type PubSub, Channels } from "./pubsub.js";
+import { generateId } from "@digi/shared/utils";
 
 export interface JobData {
   id: string;
@@ -52,7 +53,7 @@ export function createJobQueue(
       payload: Record<string, unknown>,
       db: EnqueueDb
     ): Promise<string> {
-      const id = crypto.randomUUID();
+      const id = generateId("job");
       await db.insertJob({ id, type, payload });
       await pubsub.publish(Channels.jobNew(), { id, type });
       return id;
