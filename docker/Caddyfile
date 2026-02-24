@@ -38,3 +38,7 @@ http://mail.localhost {
 http://support.localhost {
 	reverse_proxy host.docker.internal:3003
 }
+
+http://test.localhost {
+	reverse_proxy host.docker.internal:5001
+}

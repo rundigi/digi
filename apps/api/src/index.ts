@@ -53,6 +53,7 @@ const yoga = createYoga({
   context: ({ request }) => createContext(request),
   graphqlEndpoint: "/graphql",
   landingPage: true,
+  logging: "debug",
 });
 
 const AUTH_RATE_LIMIT = { windowMs: 60 * 1000, maxRequests: 20 };

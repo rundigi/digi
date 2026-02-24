@@ -56,7 +56,8 @@ export function createAuth(config: AuthConfig) {
         return generateId(prefix as Parameters<typeof generateId>[0]);
       },
       crossSubdomainCookies: {
-        enabled: false,
+        enabled: true,
+        domain: "localhost",
       },
       defaultCookieAttributes: {
         sameSite: "lax",

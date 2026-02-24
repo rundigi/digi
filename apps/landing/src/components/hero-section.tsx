@@ -77,7 +77,7 @@ export function HeroSection() {
         maxWidth: 520,
         lineHeight: 1.7,
       }}>
-        Deploy lightweight microservices with ease. Small VMs (1 vCPU, 512MB RAM), managed databases, caching solutions, and application hosting — purpose-built for modern APIs and small-scale services.
+        Deploy lightweight microservices with ease. Small VMs, managed databases, caching solutions, and application hosting — purpose-built for modern APIs and small-scale services.
       </p>
 
       {/* Waitlist Form */}

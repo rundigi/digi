@@ -22,6 +22,8 @@ const envSchema = z.object({
   MASTER_CADDY_URL: z.string().optional(),
   ALLOWED_ORIGINS: z.string().optional(),
   TS_AUTH_KEY: z.string().optional(),
+  NEXT_PUBLIC_DASHBOARD_URL: z.string().url().default("http://app.localhost"),
+  NEXT_PUBLIC_API_URL: z.string().url().default("http://api.localhost"),
   PORT: z
     .string()
     .transform(Number)

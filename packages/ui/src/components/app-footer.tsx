@@ -4,7 +4,7 @@ export function AppFooter() {
       <span>© {new Date().getFullYear()} Digi. All rights reserved.</span>
       <span className="text-neutral-800">·</span>
       <a
-        href="https://docs.digi.bnhm.dev"
+        href="https://docs.rundigi.io"
         className="transition-colors hover:text-neutral-400"
       >
         Docs

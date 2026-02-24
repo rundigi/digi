@@ -33,8 +33,8 @@ export async function createCheckoutSession(
     mode: "subscription",
     customer_email: customerEmail,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${process.env.DASHBOARD_URL ?? "http://localhost:3001"}/billing?success=true`,
-    cancel_url: `${process.env.DASHBOARD_URL ?? "http://localhost:3001"}/billing?cancelled=true`,
+    success_url: `${env.NEXT_PUBLIC_DASHBOARD_URL}/billing?success=true`,
+    cancel_url: `${env.NEXT_PUBLIC_DASHBOARD_URL}/billing?cancelled=true`,
     metadata,
   });
   return { url: session.url!, sessionId: session.id };

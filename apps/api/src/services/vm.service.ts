@@ -110,6 +110,8 @@ export async function provisionVm(
     console.log(`Waiting for IP... attempt ${i + 1}/30`);
   }
 
+  console.log(ipAddress ? "VM got IP address: " + ipAddress : "VM failed to get IP");
+
   if (!ipAddress) {
     await db.update(vms).set({ status: "error" }).where(eq(vms.id, vmId));
     throw new Error(`VM ${vmId} failed to get an IP address`);
@@ -154,14 +156,7 @@ export async function provisionVm(
     ipAddress,
     "apt-get install -y debian-keyring debian-archive-keyring apt-transport-https curl",
   );
-  await sshExec(
-    ipAddress,
-    "curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg",
-  );
-  await sshExec(
-    ipAddress,
-    "curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list",
-  );
+
   await sshExec(ipAddress, "apt-get update && apt-get install -y caddy");
   console.log("Caddy installed");
 

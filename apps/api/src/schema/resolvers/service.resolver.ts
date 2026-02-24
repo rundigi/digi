@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, SQL } from "drizzle-orm";
 import {
   services,
   containers,
@@ -6,12 +6,14 @@ import {
   customDomains,
   platformDomains,
   jobs,
+  containerTypes
 } from "@digi/db/schema";
 import { generateId, generateSubdomain } from "@digi/shared/utils";
 import { CacheKeys, CacheTTL } from "@digi/redis/cache";
 import { Channels } from "@digi/redis/pubsub";
 import { type Context } from "../../context";
 import { generateContainerSubdomain } from "@digi/shared/utils";
+import { env } from "../../env";
 
 interface CreateServiceInput {
   name: string;
@@ -96,7 +98,7 @@ export const serviceResolvers = {
     ) => {
       if (!ctx.user) throw new Error("Unauthorized");
       const { input } = args;
-
+      console.log("Creating service with input:", input);
       // Select platform domain (fewest services)
       let domainId = input.platformDomainId;
       if (!domainId) {
@@ -119,7 +121,7 @@ export const serviceResolvers = {
         ? `https://${subdomain}.${platformDomain.domain}`
         : `https://${subdomain}.localhost`;
 
-      const dashboardUrl = `http://localhost:3001/services/${serviceId}`;
+      const dashboardUrl = `${env.NEXT_PUBLIC_DASHBOARD_URL}/services/${serviceId}`;
       console.log(input);
       // Create service
       await ctx.db.insert(services).values({
@@ -137,17 +139,22 @@ export const serviceResolvers = {
         dashboardUrl,
       });
 
+     
+
       // Create containers
       for (const c of input.containers) {
-        const containerSubdomain =
-          c.type === "app"
-            ? subdomain
-            : generateContainerSubdomain(subdomain, c.type);
+        console.log(c.name, c);
+        // Expand on default options.
+        const containerSubdomain = !containerTypes.includes(
+          c.name.toLowerCase(),
+        )
+          ? subdomain
+          : generateContainerSubdomain(subdomain, c.type);
 
         await ctx.db.insert(containers).values({
           id: generateId("ctr"),
           serviceId,
-          type: c.type as "app" | "postgres" | "redis" | "docker",
+          type: c.type,
           name: c.name,
           subdomain: containerSubdomain,
           dockerImage: c.dockerImage,

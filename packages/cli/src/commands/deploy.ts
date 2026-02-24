@@ -11,6 +11,7 @@ import {
   newline,
   spinner,
 } from "../lib/output";
+import { generateId } from "@digi/shared";
 
 interface DeployServiceResponse {
   deployService: {
@@ -19,6 +20,20 @@ interface DeployServiceResponse {
     url?: string;
   };
 }
+
+type CreateServiceResponse = {
+  createService: {
+    id: string;
+    name: string;
+  };
+};
+
+type CreateContainerInput = {
+  type: string;
+  name: string;
+  dockerImage: string;
+  internalPort?: number;
+};
 
 interface TomlService {
   name: string;
@@ -122,50 +137,73 @@ export async function deployCommand(args: string[]): Promise<void> {
     time: number;
   }> = [];
 
+  let containers: CreateContainerInput[] = [];
+
   for (const name of toDeploy) {
     const service = services[name];
     if (!service) continue;
+    containers.push({
+      type: service.type ?? "docker",
+      name: service.name ?? name,
+      dockerImage: service.docker_image as string,
+      internalPort: service.port ? parseInt(service.port, 10) : undefined,
+    });
+  }
 
-    const start = performance.now();
-    const spin = spinner(`Deploying ${colors.bold(name)}...`);
+  const start = performance.now();
+  const spin = spinner(
+    `Deploying ${colors.bold(containers.length.toString())} services...`,
+  );
+  const id = generateId("dpl");
 
-    try {
-      const data = await mutate<DeployServiceResponse>(
-        `mutation DeployService($input: DeployServiceInput!) {
-          deployService(input: $input) { id status }
+  try {
+    const serviceCreate = await mutate<CreateServiceResponse>(
+      `mutation CreateService($input: CreateServiceInput!) {
+          createService(input: $input) { id name }
         }`,
-        {
-          input: {
-            name: service.name,
-            sourceType: service.source_type ?? "github",
-            repoUrl: service.repo_url ?? null,
-            dockerImage: service.docker_image ?? null,
-          },
+      {
+        input: {
+          name: id,
+          sourceType: "docker",
+          dockerImage: containers[0]?.dockerImage,
+          containers,
         },
-      );
+      },
+    );
 
-      const elapsed = ((performance.now() - start) / 1000).toFixed(1);
-      spin.stop(undefined);
+    const data = await mutate<DeployServiceResponse>(
+      `mutation DeployService($input: String!) {
+          deployService(serviceId: $input) { id status }
+        }`,
+      {
+        input: serviceCreate.createService.id,
+      },
+    );
 
-      const statusLabel =
-        data.deployService.status === "queued"
-          ? "deployed"
-          : data.deployService.status;
-      success(`${colors.bold(name).padEnd(20)} — ${statusLabel} (${elapsed}s)`);
-      results.push({
-        name,
-        ok: true,
-        url: data.deployService.url,
-        time: Number(elapsed),
-      });
-    } catch (err) {
-      const elapsed = ((performance.now() - start) / 1000).toFixed(1);
-      spin.stop(undefined);
-      error(
-        `${colors.bold(name).padEnd(20)} — failed (${elapsed}s): ${err instanceof Error ? err.message : String(err)}`,
-      );
-      results.push({ name, ok: false, time: Number(elapsed) });
-    }
+    const elapsed = ((performance.now() - start) / 1000).toFixed(1);
+    spin.stop(undefined);
+
+    const statusLabel =
+      data.deployService.status === "queued"
+        ? "deployed"
+        : data.deployService.status;
+    success(
+      `${colors.bold(data.deployService.id).padEnd(20)} — ${statusLabel} (${elapsed}s)`,
+    );
+    results.push({
+      name: data.deployService.id,
+      ok: true,
+      url: data.deployService.url,
+      time: Number(elapsed),
+    });
+  } catch (err) {
+    console.log(err);
+    const elapsed = ((performance.now() - start) / 1000).toFixed(1);
+    spin.stop(undefined);
+    error(
+      `${colors.bold(id).padEnd(20)} — failed (${elapsed}s): ${err instanceof Error ? err.message : String(err)}`,
+    );
+    results.push({ name: id, ok: false, time: Number(elapsed) });
   }
 
   newline();

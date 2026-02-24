@@ -19,6 +19,7 @@ export async function executeDeploy(
   pubsub: PubSub,
   payload: { serviceId: string; deploymentId: string },
 ): Promise<void> {
+  console.log("Starting deployment for service", payload.serviceId);
   const { serviceId, deploymentId } = payload;
 
   const service = await db.query.services.findFirst({
@@ -47,6 +48,7 @@ export async function executeDeploy(
     ? await db.query.vms.findFirst({ where: eq(vms.id, service.vmId) })
     : null;
 
+  console.log("Found VM", vm?.id ?? "none", "for service", service.id);
   if (!vm) {
     // Select VM with most available headroom
     const allVms = await db.query.vms.findMany({
@@ -101,12 +103,19 @@ export async function executeDeploy(
       continue;
     }
 
+    console.log("Provisioning container", container.id, "with image", image);
+
     // Pull image
     await docker.pullImage(vm.ipAddress, image);
-
+    console.log("Pulled image", image, "on VM", vm.id);
     // Assign ports
     const externalPort = 10000 + Math.floor(Math.random() * 50000);
-
+    console.log(
+      "Assigned external port",
+      externalPort,
+      "to container",
+      container.id,
+    );
     // Run container
     const dockerId = await docker.runContainer(vm.ipAddress, {
       image,
@@ -128,6 +137,7 @@ export async function executeDeploy(
       cpus: (container.resourceLimits as Record<string, string>)?.cpus,
     });
 
+    console.log("Started container", container.id, "with Docker ID", dockerId);
     // Update container record
     await db
       .update(containers)
@@ -142,13 +152,6 @@ export async function executeDeploy(
     // Add route on VM Caddy
     console.log(container.subdomain, vm.ipAddress, externalPort);
     if (container.subdomain) {
-      const vmCaddyUrl = `http://${vm.ipAddress}:2019`;
-      // await caddy.addVmRoute(
-      //   vmCaddyUrl,
-      //   container.subdomain,
-      //   externalPort
-      // );
-
       // Add route on Master Caddy
       if (env.MASTER_CADDY_URL) {
         await caddy.addMasterRoute(

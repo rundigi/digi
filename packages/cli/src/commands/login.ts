@@ -133,7 +133,7 @@ export async function loginCommand(_args: string[]): Promise<void> {
   try {
     if (method.startsWith("Browser")) {
       const apiUrl = await prompt("API URL", {
-        default: "http://localhost:4000",
+        default: "https://api.rundigi.io",
       });
       await browserLogin(apiUrl);
     } else {

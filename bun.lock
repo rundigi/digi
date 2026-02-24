@@ -201,6 +201,7 @@
         "@digi/shared": "workspace:*",
       },
       "devDependencies": {
+        "@digi/shared": "workspace:*",
         "@digi/typescript-config": "workspace:*",
         "@types/bun": "latest",
         "typescript": "^5.8.2",

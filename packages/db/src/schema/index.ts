@@ -8,7 +8,7 @@ export { vms } from "./vms";
 export { ipPool } from "./ip-pool";
 export { platformDomains } from "./platform-domains";
 export { services } from "./services";
-export { containers } from "./containers";
+export { containers, containerTypes } from "./containers";
 export { deployments } from "./deployments";
 export { customDomains } from "./custom-domains";
 export { dnsRecords } from "./dns-records";

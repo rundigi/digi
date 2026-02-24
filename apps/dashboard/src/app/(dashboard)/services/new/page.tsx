@@ -65,6 +65,7 @@ interface ComponentDef {
   textColor: string;
   category: "runtime" | "database" | "cache";
   dockerImage?: string;
+  internalPort?: number;
   icon: (props: { className?: string }) => React.ReactNode;
 }
 
@@ -88,6 +89,7 @@ const componentDefs: ComponentDef[] = [
     textColor: "text-sky-400",
     category: "database",
     dockerImage: "postgres:16",
+    internalPort: 5432,
     icon: DatabaseIcon,
   },
   {
@@ -99,6 +101,7 @@ const componentDefs: ComponentDef[] = [
     textColor: "text-orange-400",
     category: "database",
     dockerImage: "mysql:8",
+    internalPort: 3306,
     icon: DatabaseIcon,
   },
   {
@@ -110,6 +113,7 @@ const componentDefs: ComponentDef[] = [
     textColor: "text-green-400",
     category: "database",
     dockerImage: "mongo:7",
+    internalPort: 27017,
     icon: DatabaseIcon,
   },
   {
@@ -121,6 +125,7 @@ const componentDefs: ComponentDef[] = [
     textColor: "text-red-400",
     category: "cache",
     dockerImage: "redis:7",
+    internalPort: 6379,
     icon: CacheIcon,
   },
   {
@@ -132,6 +137,7 @@ const componentDefs: ComponentDef[] = [
     textColor: "text-purple-400",
     category: "cache",
     dockerImage: "valkey/valkey:8",
+    internalPort: 6379,
     icon: CacheIcon,
   },
   {
@@ -272,8 +278,13 @@ export default function NewServicePage() {
           return {
             type,
             name: `${form.name}-${k}`,
-            internalPort: k === "app" ? Number(form.dockerPort) : undefined,
-            ...(dockerImage ? { dockerImage } : {}),
+            internalPort:
+              k === "app" ? Number(form.dockerPort) : def?.internalPort,
+            ...(k === "app"
+              ? { dockerImage: form.dockerImage }
+              : dockerImage
+                ? { dockerImage }
+                : {}),
             ...(resourceLimits ? { resourceLimits } : {}),
           };
         });
@@ -282,6 +293,8 @@ export default function NewServicePage() {
       for (const v of form.envVars) {
         if (v.key.trim()) envVarsObj[v.key] = v.value;
       }
+
+      console.log(containers);
 
       await gql(
         `

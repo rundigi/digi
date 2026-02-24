@@ -1,13 +1,24 @@
 import { pgTable, text, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { services } from "./services";
 
+export const containerTypes = [
+  "app",
+  "postgres",
+  "redis",
+  "docker",
+  "sqlite",
+  "mysql",
+  "mongo",
+  "valkey",
+] as [string, ...string[]];
+
 export const containers = pgTable("containers", {
   id: text("id").primaryKey(),
   serviceId: text("service_id")
     .notNull()
     .references(() => services.id, { onDelete: "cascade" }),
   type: text("type", {
-    enum: ["app", "postgres", "redis", "docker"],
+    enum: containerTypes,
   }).notNull(),
   name: text("name").notNull(),
   dockerContainerId: text("docker_container_id"),

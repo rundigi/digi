@@ -281,8 +281,8 @@ const baseTypeDefs = /* GraphQL */ `
   input CreateContainerInput {
     type: String!
     name: String!
-    dockerImage: String
-    internalPort: Int
+    dockerImage: String!
+    internalPort: Int!
     envVars: JSON
     resourceLimits: JSON
   }
